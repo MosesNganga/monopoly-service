@@ -31,6 +31,7 @@
  */
 
 // CommonJS imports for Node.js 22.6+ type stripping compatibility
+import 'dotenv/config' 
 import pgPromise from 'pg-promise';
 const pgp = pgPromise();
 

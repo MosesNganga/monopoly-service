@@ -39,12 +39,13 @@
  * @date: Fall, 2025 (updated to JS->TS, Node version, master->main repo, added SQL injection examples)
  */
 
+import 'dotenv/config' // Load environment variables from .env
 import express from 'express';
 import pgPromise from 'pg-promise';
 
 // Import types for compile-time checking.
 import type { Request, Response, NextFunction } from 'express';
-import type { Player, PlayerInput } from './player.js';
+import type { Player, PlayerInput, Game, GamePlayer } from './player.js';
 
 // Set up the database
 const db = pgPromise()({
@@ -67,6 +68,9 @@ router.get('/players/:id', readPlayer);
 router.put('/players/:id', updatePlayer);
 router.post('/players', createPlayer);
 router.delete('/players/:id', deletePlayer);
+router.get('/games', readGames);
+router.get('/games/:id', readGamePlayers);
+router.delete('/games/:id', deleteGame);
 
 // For testing only; vulnerable to SQL injection!
 // router.get('/bad/players/:id', readPlayerBad);
@@ -218,4 +222,60 @@ function deletePlayer(request: Request, response: Response, next: NextFunction):
         .catch((error: Error): void => {
             next(error);
         });
+}
+
+
+
+function readGames(_req: Request, res: Response, next: NextFunction): void {
+  db.manyOrNone<Game>('SELECT id, time, status FROM Game ORDER BY id')
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => next(err));
+}
+
+
+
+function readGamePlayers(req: Request, res: Response, next: NextFunction): void {
+  const sql = `
+    SELECT
+      g.id       AS "gameid",
+      g.time     AS "time",
+      p.id       AS "playerid",
+      p.name     AS "name",
+      pg.score   AS "score"
+    FROM Game g
+    JOIN PlayerGame pg ON pg.gameID = g.id
+    JOIN Player p      ON p.id = pg.playerID
+    WHERE g.id = ${'id'}
+    ORDER BY pg.score DESC, p.id
+  `;
+
+  db.manyOrNone<GamePlayer>(sql, req.params)
+    .then((data) => {
+      // manyOrNone always returns an array, so handle 404 manually if you want:
+      if (data.length === 0) return res.sendStatus(404);
+      res.send(data);
+    })
+    .catch((err) => next(err));
+}
+
+function deleteGame(req: Request, res: Response, next: NextFunction): void {
+  db.tx((t) => {
+    const params = req.params;
+
+    return t.none('DELETE FROM Ownership  WHERE gameID = ${id}', params)
+      .then(() => t.none('DELETE FROM PlayerGame WHERE gameID = ${id}', params))
+      .then(() =>
+        t.oneOrNone<{ id: number }>(
+          'DELETE FROM Game WHERE id = ${id} RETURNING id',
+          params,
+        ),
+      );
+  })
+    .then((data) => {
+      // null → nothing deleted → 404, otherwise send { id: ... }
+      returnDataOr404(res, data);
+    })
+    .catch((err) => next(err));
 }

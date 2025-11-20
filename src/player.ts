@@ -15,3 +15,17 @@ export interface PlayerInput {
     email: string;
     name: string;
 }
+
+export type Game = {
+  id: number;
+  time: string;   // timestamp as ISO string
+  status: string;
+};
+
+export type GamePlayer = {
+  gameid: number;
+  time: string;
+  playerid: number;
+  name: string;
+  score: number;
+};
