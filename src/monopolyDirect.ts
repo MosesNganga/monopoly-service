@@ -49,6 +49,7 @@ const database = pgp({
     ssl: true,
 });
 
+
 // Send the SQL command directly to Postgres.
 database.manyOrNone('SELECT * FROM Player')
     .then((data: Player[]): void => {
