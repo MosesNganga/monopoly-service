@@ -1,18 +1,18 @@
 -- Simple curl tests of the player API endpoints.
 
-export SERVICE_URL=https://cs262-webservice-abebhtekgegdb2as.canadacentral-01.azurewebsites.net
+export SERVICE_URL=https://monopoly-project-hgauguhxcpcda2b3.canadacentral-01.azurewebsites.net
 
 curl --request GET \
         ${SERVICE_URL}/players
 
 curl --request POST \
         --header "Content-Type: application/json" \
-        --data '{"name":"test name...", "email":"test email..."}' \
+        --data '{"name":"test name...", "emailAddress":"test email..."}' \
         ${SERVICE_URL}/players
 
 curl --request PUT \
         --header "Content-Type: application/json" \
-        --data '{"name":"new test name...", "email":"new test email..."}' \
+        --data '{"name":"new test name...", "emailAddress":"new test email..."}' \
         ${SERVICE_URL}/players/4
 
 curl --request DELETE \

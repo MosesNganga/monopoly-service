@@ -166,7 +166,7 @@ function readPlayer(request: Request, response: Response, next: NextFunction): v
  * exist.
  */
 function updatePlayer(request: Request, response: Response, next: NextFunction): void {
-    db.oneOrNone('UPDATE Player SET email=${body.email}, name=${body.name} WHERE id=${params.id} RETURNING id', {
+    db.oneOrNone('UPDATE Player SET emailAddress=${body.emailAddress}, name=${body.name} WHERE id=${params.id} RETURNING id', {
         params: request.params,
         body: request.body as PlayerInput
     })
@@ -184,7 +184,7 @@ function updatePlayer(request: Request, response: Response, next: NextFunction):
  * assumed to automatically assign a unique ID using auto-increment.
  */
 function createPlayer(request: Request, response: Response, next: NextFunction): void {
-    db.one('INSERT INTO Player(email, name) VALUES (${email}, ${name}) RETURNING id',
+    db.one('INSERT INTO Player(emailAddress, name) VALUES (${emailAddress}, ${name}) RETURNING id',
         request.body as PlayerInput
     )
         .then((data: { id: number }): void => {
