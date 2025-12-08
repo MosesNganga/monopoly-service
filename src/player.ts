@@ -7,12 +7,12 @@
 
 export interface Player {
     id: number;
-    email: string;
+    emailAddress: string;
     name: string;
 }
 
 export interface PlayerInput {
-    email: string;
+    emailAddress: string;
     name: string;
 }
 
