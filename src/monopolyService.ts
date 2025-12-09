@@ -247,7 +247,7 @@ function readGamePlayers(req: Request, res: Response, next: NextFunction): void 
     FROM Game g
     JOIN PlayerGame pg ON pg.gameID = g.id
     JOIN Player p      ON p.id = pg.playerID
-    WHERE g.id = ${'id'}
+    WHERE g.id = \${id}
     ORDER BY pg.score DESC, p.id
   `;
 
